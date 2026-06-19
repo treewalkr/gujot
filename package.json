@@ -1,0 +1,20 @@
+{
+  "name": "gujot",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"bun --filter @gujot/backend dev\" \"bun --filter @gujot/frontend dev\"",
+    "build": "bun --filter '*' build",
+    "typecheck": "bun --filter '*' typecheck",
+    "test": "bun --filter '*' test",
+    "test:e2e": "tsx e2e/run.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "tsx": "^4.19.0"
+  }
+}
