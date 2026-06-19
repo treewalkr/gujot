@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { envPlugin } from "./env";
 import { openapiPlugin } from "./openapi";
+import { authRoutes, meRoutes } from "./routes/auth";
 import { entriesRoutes } from "./routes/entries";
 
 /**
@@ -12,6 +13,8 @@ export const app = new Elysia()
   .use(envPlugin)
   .use(openapiPlugin)
   .use(entriesRoutes)
+  .use(authRoutes)
+  .use(meRoutes)
   .get(
     "/status",
     () => ({ service: "gujot-backend", status: "ok" }),

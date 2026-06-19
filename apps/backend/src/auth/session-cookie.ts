@@ -19,11 +19,14 @@ export function readSessionId(headers: Headers): string | null {
   return null;
 }
 
-type CookieJar = { cookie: Record<string, unknown> };
+// Elysia's `set.cookie` is typed as optional, though it is always present when a
+// response is serialized. The `??=` keeps the helpers type-honest and is a
+// runtime no-op.
+type CookieJar = { cookie?: Record<string, unknown> };
 
 /** Set the session cookie to `id` with the project's fixed attributes. */
 export function setSessionCookie(set: CookieJar, id: string, secure: boolean): void {
-  set.cookie[SESSION_COOKIE] = {
+  (set.cookie ??= {})[SESSION_COOKIE] = {
     value: id,
     httpOnly: true,
     secure,
@@ -34,7 +37,7 @@ export function setSessionCookie(set: CookieJar, id: string, secure: boolean): v
 
 /** Clear the session cookie by expiring it immediately. */
 export function clearSessionCookie(set: CookieJar, secure: boolean): void {
-  set.cookie[SESSION_COOKIE] = {
+  (set.cookie ??= {})[SESSION_COOKIE] = {
     value: "",
     httpOnly: true,
     secure,
