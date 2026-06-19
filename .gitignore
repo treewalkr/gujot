@@ -40,6 +40,9 @@ Thumbs.db
 
 # Testing / coverage
 coverage/
+test-results/
+playwright-report/
+/playwright/.cache/
 
 # Databases / local data
 *.sqlite

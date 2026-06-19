@@ -1,0 +1,25 @@
+# Mode 2 — fully containerized local dev / E2E gate (ADR-0005).
+# Caddy/TLS are production-only and intentionally absent here; the frontend
+# reaches the backend directly over the compose network.
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    environment:
+      BACKEND_PORT: "3000"
+    expose:
+      - "3000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    environment:
+      BACKEND_URL: "http://backend:3000"
+      PORT: "3000"
+      ORIGIN: "http://localhost:${FRONTEND_PUBLISH_PORT:-5173}"
+    ports:
+      - "${FRONTEND_PUBLISH_PORT:-5173}:3000"
+    depends_on:
+      - backend
