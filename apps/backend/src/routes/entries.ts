@@ -16,9 +16,11 @@ export interface EntryDto {
 }
 
 // TypeBox schema for the currency literals, derived from @gujot/shared so the
-// API never accepts a code the Money primitive does not understand.
-const currencySchema = t.Union(
-  CURRENCIES.map((c) => t.Literal(c)),
+// API never accepts a code the Money primitive does not understand. Built as an
+// enum from the CURRENCIES tuple so TypeBox infers the literal union (mapping
+// the tuple would widen the elements and collapse the type to `never`).
+const currencySchema = t.Enum(
+  Object.fromEntries(CURRENCIES.map((c) => [c, c])) as Record<Currency, Currency>,
 );
 
 function toDto(row: Entry): EntryDto {
