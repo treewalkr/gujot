@@ -17,6 +17,8 @@ export const entriesRoutes = new Elysia({ prefix: "/entries", name: "Entries", t
   .get(
     "",
     async () => {
+      // TODO(slice growth): return all rows for now; add limit/cursor pagination
+      // before the ledger grows enough for this to matter.
       return getDb().select().from(entries).orderBy(desc(entries.id));
     },
     {
