@@ -22,6 +22,25 @@ services:
       retries: 10
       start_period: 3s
 
+  # Optional Redis (ADR-0007 / #5). Gated behind a compose profile so it only
+  # starts on demand — the default stack (no --profile redis) has no Redis and
+  # the backend runs on the Postgres SessionStore alone. Deliberately NOT a
+  # dependency of `backend`: the app boots and authenticates without it, and
+  # falls back to Postgres at runtime if Redis is unreachable. Enable with:
+  #   docker compose --profile redis up   (plus REDIS_URL on the backend)
+  redis:
+    image: redis:7-alpine
+    profiles: ["redis"]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
   backend:
     build:
       context: .
@@ -37,6 +56,13 @@ services:
       # cookie must NOT be Secure or the browser won't send it over HTTP and the
       # E2E auth flow can't work. Production sets this to "true" (ADR-0007).
       COOKIE_SECURE: "false"
+      # Optional Redis session store (ADR-0007 / #5). Empty by default → the
+      # backend uses the Postgres SessionStore alone. To enable Redis, run the
+      # stack with the redis profile AND set REDIS_URL, e.g.:
+      #   REDIS_URL=redis://redis:6379 docker compose --profile redis up
+      # When set, sessions use Redis as the primary and transparently fall back
+      # to Postgres if Redis is unreachable; when unset, this is a no-op.
+      REDIS_URL: "${REDIS_URL:-}"
     expose:
       - "3000"
     # Published for local dev only so the OpenAPI docs (/openapi) and raw spec
