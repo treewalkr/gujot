@@ -13,14 +13,19 @@
     "dev": "bun run --watch src/server.ts",
     "start": "bun run src/server.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@yolk-oss/elysia-env": "^3.0.1",
-    "elysia": "^1.2.0"
+    "drizzle-orm": "^0.36.4",
+    "elysia": "^1.2.0",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@types/bun": "^1.2.0",
+    "drizzle-kit": "^0.30.0",
     "typescript": "^5.7.0"
   }
 }
