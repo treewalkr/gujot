@@ -1,4 +1,26 @@
 // @gujot/shared — Money/Currency primitives (ADR-0003).
-// Empty placeholder for now; domain primitives land in #3.
+//
+// Money is stored as integer minor units (cents) to avoid floating-point
+// error. It is a value object: two Money values are equal iff their amount
+// and currency match. Currency is a curated set of ISO 4217 codes.
 
-export {};
+/** ISO 4217 codes this system currently understands. */
+export const CURRENCIES = ["USD", "EUR", "GBP"] as const;
+export type Currency = (typeof CURRENCIES)[number];
+
+/**
+ * An amount of money in a specific currency, held as integer minor units.
+ * Construct via `Money.of`; the constructor is private so instances are
+ * always created through the factory.
+ */
+export class Money {
+  private constructor(
+    public readonly amount: number,
+    public readonly currency: Currency,
+  ) {}
+
+  /** Create a Money value from an amount in minor units (e.g. 1500 → $15.00). */
+  static of(amount: number, currency: Currency): Money {
+    return new Money(amount, currency);
+  }
+}

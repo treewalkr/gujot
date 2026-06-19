@@ -42,6 +42,10 @@
     "packages/shared": {
       "name": "@gujot/shared",
       "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "^1.2.0",
+        "typescript": "^5.7.0",
+      },
     },
   },
   "packages": {
