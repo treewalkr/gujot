@@ -15,6 +15,13 @@
       "when": 1781842699341,
       "tag": "0001_bright_monster_badoon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781864819772,
+      "tag": "0002_fair_ultimatum",
+      "breakpoints": true
     }
   ]
 }

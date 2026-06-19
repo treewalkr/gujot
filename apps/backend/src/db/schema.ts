@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { bigint, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { CURRENCIES } from "@gujot/shared";
 
 // A ledger entry: a stored Money value (ADR-0004). This table is the single
@@ -13,7 +13,11 @@ export const currencyEnum = pgEnum("currency", [...CURRENCIES]);
 
 export const entries = pgTable("entries", {
   id: serial("id").primaryKey(),
-  amount: integer("amount").notNull(),
+  // bigint (int64) mapped to a JS number. int32 (integer) capped at ~$21M of
+  // minor units, below what Money can represent (up to Number.MAX_SAFE_INTEGER);
+  // int64 storage removes the DB as the binding constraint. mode: "number"
+  // keeps the wire shape a JSON number — no BigInt serialization.
+  amount: bigint("amount", { mode: "number" }).notNull(),
   currency: currencyEnum("currency").notNull(),
   label: text("label").notNull(),
   // mode: "string" returns ISO strings (not Date), matching the JSON wire shape
