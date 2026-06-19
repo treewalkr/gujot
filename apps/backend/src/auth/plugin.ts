@@ -1,9 +1,13 @@
 import { Elysia, status } from "elysia";
 import type { Cookie } from "elysia";
+import { RedisClient } from "bun";
 import { eq } from "drizzle-orm";
 import { getDb } from "../database/client";
 import { users } from "../database/schema";
 import { PostgresSessionStore } from "./postgres-session-store";
+import { BunRedisCommands } from "./redis-commands";
+import { RedisSessionStore } from "./redis-session-store";
+import { FallbackSessionStore } from "./fallback-session-store";
 import { readSessionId } from "./session-cookie";
 import type { SessionStore } from "./session-store";
 
@@ -15,10 +19,37 @@ export type CurrentUser = { id: number; email: string };
 // The store is constructed lazily: getDb() throws without a DATABASE_URL, and
 // importing `app` must stay side-effect-free so the infra-free /status and
 // /openapi unit tests never need a DB. First use — on the first auth-gated
-// request — opens the pooled client.
+// request — opens the pooled client (and, if REDIS_URL is set, the Redis one).
 let store: SessionStore | undefined;
 export function getSessionStore(): SessionStore {
-  return (store ??= new PostgresSessionStore(getDb()));
+  return (store ??= buildSessionStore());
+}
+
+// Pure selection: which store backs sessions given an optional Redis store and
+// the always-available Postgres store (ADR-0007 / #5). Extracted from
+// buildSessionStore so the Redis-vs-Postgres decision and the primary/fallback
+// ordering are unit-testable without constructing real clients (which need
+// infra). Redis is the primary when present; Postgres is always the fallback.
+export function selectSessionStore(
+  redis: SessionStore | null,
+  postgres: SessionStore,
+): SessionStore {
+  return redis ? new FallbackSessionStore(redis, postgres) : postgres;
+}
+
+// Build the session store graph from config. Postgres is always available;
+// Redis joins as an optional primary when REDIS_URL is set, with Postgres
+// wrapping in as the fallback. REDIS_URL is a boot/construction read, so it
+// comes straight from process.env (ADR-0009). All construction is lazy —
+// new RedisClient(url) opens nothing until the first command — so this stays
+// side-effect-free until the first auth-gated request.
+function buildSessionStore(): SessionStore {
+  const postgres = new PostgresSessionStore(getDb());
+  const redisUrl = process.env.REDIS_URL;
+  const redis = redisUrl
+    ? new RedisSessionStore(new BunRedisCommands(new RedisClient(redisUrl)))
+    : null;
+  return selectSessionStore(redis, postgres);
 }
 
 async function findUserById(id: number): Promise<CurrentUser | null> {
