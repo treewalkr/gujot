@@ -1,15 +1,24 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { CURRENCIES } from "@gujot/shared";
 
-// A ledger entry: a stored Money value (ADR-0004). Money is held as integer
-// minor units (amount_minor) plus its ISO 4217 currency code, so the same
-// representation the @gujot/shared Money primitive uses is what persists.
+// A ledger entry: a stored Money value (ADR-0004). This table is the single
+// source of truth for the entry's shape — the API validation models are derived
+// from it via drizzle-typebox, and the column names are the wire field names.
+//
+// Money is held as integer `amount` (minor units) plus a `currency` enum whose
+// values come from @gujot/shared's CURRENCIES, so the DB, the API, and the
+// Money primitive all agree on which currency codes exist.
+
+export const currencyEnum = pgEnum("currency", [...CURRENCIES]);
 
 export const entries = pgTable("entries", {
   id: serial("id").primaryKey(),
-  amountMinor: integer("amount_minor").notNull(),
-  currency: text("currency").notNull(),
+  amount: integer("amount").notNull(),
+  currency: currencyEnum("currency").notNull(),
   label: text("label").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  // mode: "string" returns ISO strings (not Date), matching the JSON wire shape
+  // and the drizzle-typebox select schema used for response validation.
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
     .defaultNow()
     .notNull(),
 });

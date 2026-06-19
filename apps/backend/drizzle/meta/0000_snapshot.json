@@ -1,5 +1,5 @@
 {
-  "id": "9d6094e5-82ea-4d32-a7cc-f65fbc4699f4",
+  "id": "21df5286-1202-41ef-aed5-266c1792d586",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,15 +14,16 @@
           "primaryKey": true,
           "notNull": true
         },
-        "amount_minor": {
-          "name": "amount_minor",
+        "amount": {
+          "name": "amount",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
         "currency": {
           "name": "currency",
-          "type": "text",
+          "type": "currency",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -49,7 +50,17 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.currency": {
+      "name": "currency",
+      "schema": "public",
+      "values": [
+        "USD",
+        "EUR",
+        "GBP"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

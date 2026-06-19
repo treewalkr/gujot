@@ -20,13 +20,14 @@
   "dependencies": {
     "@gujot/shared": "workspace:*",
     "@yolk-oss/elysia-env": "^3.0.1",
-    "drizzle-orm": "^0.36.4",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-typebox": "^0.3.3",
     "elysia": "^1.2.0",
     "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@types/bun": "^1.2.0",
-    "drizzle-kit": "^0.30.0",
+    "drizzle-kit": "^0.31.0",
     "typescript": "^5.7.0"
   }
 }
