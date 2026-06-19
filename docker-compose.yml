@@ -32,6 +32,11 @@ services:
       DATABASE_URL_DIRECT: "postgresql://gujot:gujot@postgres:5432/gujot"
     expose:
       - "3000"
+    # Published for local dev only so the OpenAPI docs (/openapi) and raw spec
+    # (/openapi/json) are reachable in a browser. ADR-0005: production routing
+    # is same-origin via Caddy, so the backend is never published there.
+    ports:
+      - "${BACKEND_PUBLISH_PORT:-3000}:3000"
     depends_on:
       postgres:
         condition: service_healthy
