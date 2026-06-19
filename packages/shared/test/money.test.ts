@@ -22,3 +22,9 @@ test("subtract returns the difference of two same-currency amounts", () => {
 test("subtract throws when the currencies differ", () => {
   expect(() => Money.of(4000, "USD").subtract(Money.of(1500, "EUR"))).toThrow();
 });
+
+test("equals is true only when amount and currency both match", () => {
+  expect(Money.of(1500, "USD").equals(Money.of(1500, "USD"))).toBe(true);
+  expect(Money.of(1500, "USD").equals(Money.of(1500, "EUR"))).toBe(false);
+  expect(Money.of(1500, "USD").equals(Money.of(1499, "USD"))).toBe(false);
+});

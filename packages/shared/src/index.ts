@@ -35,6 +35,11 @@ export class Money {
     assertSameCurrency(this, other);
     return new Money(this.amount - other.amount, this.currency);
   }
+
+  /** Value equality: true iff amount and currency both match. */
+  equals(other: Money): boolean {
+    return this.amount === other.amount && this.currency === other.currency;
+  }
 }
 
 function assertSameCurrency(a: Money, b: Money): void {
