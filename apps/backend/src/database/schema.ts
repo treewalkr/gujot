@@ -29,3 +29,8 @@ export const entries = pgTable("entries", {
 
 export type Entry = typeof entries.$inferSelect;
 export type NewEntry = typeof entries.$inferInsert;
+
+// Table singleton (Elysia Drizzle recipe): one registry of every table, used by
+// src/database/model.ts to derive the validation spreads. Add new tables here.
+export const table = { entries } as const;
+export type Table = typeof table;

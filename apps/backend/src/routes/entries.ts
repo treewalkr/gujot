@@ -1,13 +1,13 @@
 import { Elysia } from "elysia";
 import { desc } from "drizzle-orm";
-import { getDb } from "../db/client";
-import { entries } from "../db/schema";
-import { createEntrySchema, entryListSchema, entrySchema } from "../db/models";
+import { getDb } from "../database/client";
+import { entries } from "../database/schema";
+import { createEntrySchema, entryListSchema, entrySchema } from "../database/model";
 
 // One Elysia instance = one controller (MVC, Elysia pattern). Validation models
-// are derived from the Drizzle schema in src/db/models.ts and registered by name
-// so they surface in OpenAPI and tighten Eden's inferred contract; body and
-// response schemas reference those names.
+// are composed from the Drizzle table's spreads in src/database/model.ts and
+// registered by name so they surface in OpenAPI and tighten Eden's inferred
+// contract; body and response schemas reference those names.
 export const entriesRoutes = new Elysia({ prefix: "/entries", name: "Entries", tags: ["entries"] })
   .model({
     entry: entrySchema,

@@ -23,16 +23,25 @@ API validation models are derived from it with
 and Eden:
 
 ```
-Drizzle table → drizzle-typebox (createSelectSchema / createInsertSchema)
-             → Elysia body/response models (registered by name)
+Drizzle table → table singleton → spread utility (drizzle-typebox)
+             → db.insert / db.select spreads → Elysia body/response models (by name)
              → Eden treaty type App → frontend types
 ```
 
-Concretely, in `apps/backend/src/db/models.ts`:
+Concretely, following the [Elysia Drizzle recipe](https://elysiajs.com/recipe/drizzle.html):
 
-- `entrySchema` = `createSelectSchema(entries)` — full row, used for responses.
-- `createEntrySchema` = `t.Omit(createInsertSchema(entries), ["id", "createdAt"])`
-  — what a client posts.
+- `src/database/schema.ts` exports a `table` singleton (`{ entries } as const`).
+- `src/database/utils.ts` is the recipe's `spread` / `spreads` utility (copied
+  as-is): it turns a Drizzle table into a plain object of column schemas, so a
+  route can pick fields and compose `t.Object` — and spreading (rather than
+  nesting a drizzle-typebox schema inside an Elysia type) is what avoids the
+  circular "type instantiation is possibly infinite" reference.
+- `src/database/model.ts` builds a `db` validation-model singleton
+  (`db.insert` / `db.select` via `spreads`), then composes the API models from
+  those spreads: `entrySchema` = `t.Object({ ...db.select.entries })` (full row,
+  responses); `createEntrySchema` = `t.Object({ amount, currency, label })` from
+  `db.insert.entries` (what a client posts). `db` here is validation-only — the
+  live client is `getDb()` in `client.ts`.
 - DTO types are `typeof schema.static`, never a hand-written `interface`.
 
 The column names **are** the wire field names (`amount`, `currency`, `label`),
@@ -66,12 +75,15 @@ contract.
   frontend types; there is exactly one place to change.
 - No `interface`/class DTOs, no hand-maintained body/response schemas, no
   `toDto` mapping.
-- New tables follow the same recipe: define the Drizzle table, derive the
-  schemas in `src/db/models.ts`, register and reference them in a route module.
-- Cost: a `drizzle-typebox` runtime dependency and a TypeBox version pin to
-  maintain. If a Drizzle type can't be expressed as we want, we refine it
-  explicitly via `createSelectSchema(table, { col: t.String(...) })` rather than
-  abandoning the single-source approach.
+- New tables follow the same recipe: define the Drizzle table, add it to the
+  `table` singleton, compose its models from the spreads in
+  `src/database/model.ts`, then register and reference them in a route module.
+- Cost: a `drizzle-typebox` runtime dependency, a direct `@sinclair/typebox`
+  dependency (the `spread` utility imports `Kind`/`TObject` from it; the root
+  `overrides` pin keeps one version), and a TypeBox version pin to maintain. If
+  a Drizzle type can't be expressed as we want, we refine it explicitly via
+  `createSelectSchema(table, { col: t.String(...) })` rather than abandoning the
+  single-source approach.
 
 ## Rejected
 

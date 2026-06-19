@@ -29,11 +29,17 @@ system-wide decisions live in [`docs/adr/`](../../docs/adr/).
 
 ## Conventions
 
-- **Drizzle schema is the single source of truth** for an entry's shape. API
-  validation models are derived from the `entries` table via `drizzle-typebox`
-  (`createSelectSchema` / `createInsertSchema`) in
-  [`src/db/models.ts`](src/db/models.ts) — not hand-written. See
+- **Drizzle schema is the single source of truth** for an entry's shape. The
+  `entries` table is registered in a `table` singleton
+  ([`src/database/schema.ts`](src/database/schema.ts)); `src/database/model.ts`
+  spreads it into a validation-model singleton (`db.insert` / `db.select`) via
+  the `spread` utility in [`src/database/utils.ts`](src/database/utils.ts), then
+  composes the API validation models from those spreads — not hand-written. See
   [ADR-0008](../../docs/adr/0008-elysia-drizzle-single-source-models.md).
+- **`db` in `model.ts` is validation-only, not the runtime client.** `db.insert`
+  / `db.select` are plain objects of column schemas used to build `t.Object`
+  validation models; the live Postgres client is `getDb()` in `client.ts`. (The
+  name mirrors the Elysia Drizzle recipe.)
 - **No interface/class DTOs.** DTO types come from `typeof schema.static`, so the
   wire shape, the validation, and the DB cannot drift apart.
 - **Controller-as-Elysia-instance.** One `Elysia({ prefix })` instance per

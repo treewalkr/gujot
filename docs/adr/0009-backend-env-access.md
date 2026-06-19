@@ -11,7 +11,7 @@ which have different constraints:
    time.
 2. **Boot / app-construction** — values read once while building the app, before
    any request exists: the listen port (`server.ts`) and the Postgres connection
-   URLs (`db/client.ts`).
+   URLs (`database/client.ts`).
 
 `@yolk-oss/elysia-env` gives a TypeBox-validated environment attached as an
 Elysia **decorator**, which is ideal for case 1 — fail-fast validation at boot,
