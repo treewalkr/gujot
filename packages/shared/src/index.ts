@@ -5,7 +5,7 @@
 // and currency match. Currency is a curated set of ISO 4217 codes.
 
 /** ISO 4217 codes this system currently understands. */
-export const CURRENCIES = ["USD", "EUR", "GBP"] as const;
+export const CURRENCIES = ["USD", "EUR", "GBP", "THB"] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
 /**

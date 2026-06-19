@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { Money } from "../src/index";
+import { CURRENCIES, Money } from "../src/index";
 
 test("Money.of stores the amount in minor units and its currency", () => {
   const m = Money.of(1500, "USD");
@@ -55,4 +55,11 @@ test("fromDecimal converts major-unit decimals to minor units", () => {
   expect(Money.fromDecimal(15.05, "USD")).toEqual(Money.of(1505, "USD"));
   expect(Money.fromDecimal(0, "USD")).toEqual(Money.of(0, "USD"));
   expect(Money.fromDecimal(-15, "USD")).toEqual(Money.of(-1500, "USD"));
+});
+
+test("supports THB as a currency", () => {
+  expect(CURRENCIES).toContain("THB");
+  // Intl formats THB as "THB 15.00" (non-breaking space); accept any
+  // whitespace so the assertion is locale-stable.
+  expect(Money.of(1500, "THB").format()).toMatch(/^THB\s+15\.00$/);
 });
