@@ -1,35 +1,54 @@
 # GuJot
 
-GuJot is a personal finance and expense-tracking application.
+GuJot is a personal finance and expense-tracking application — a monorepo with
+an [Elysia](https://elysia.dev) backend and a [SvelteKit](https://svelte.dev)
+frontend sharing a single [Bun](https://bun.sh) workspace.
 
-## Draft ADR
+## Prerequisites
 
-This section captures the current architectural direction for the project.
+- [Docker](https://www.docker.com/) (the primary way to run the stack)
+- [Bun](https://bun.sh) and [Node](https://nodejs.org/) (for host-mode dev and
+  running checks)
+- [`just`](https://github.com/casey/just) — optional, for the run recipes below
 
-### Stack Decisions
+## Getting started
 
-- Monorepo structure
-- Elysia for the backend
-- SvelteKit with Svelte 5 runes for the frontend
-- Docker for local development
-- GitHub Actions pipeline for deployment
+Copy the env template, then bring up the stack:
 
-### Dependencies
+```sh
+cp .env.example .env
+just up
+```
 
-- TanStack Query for Svelte
-- Playwright for UI testing
-- A component framework to be decided
+`just up` builds the images, applies Drizzle migrations, and starts the backend
+and frontend. The UI is then served at <http://localhost:5173>.
 
-### Architectural Patterns
+Without `just`, the equivalent Docker Compose commands are in the
+[`Justfile`](./Justfile).
 
-- SvelteKit application patterns
-- Elysia best practices for backend structure
+## Common tasks
 
-### Development and Deployment
+| Task                       | Command        |
+| -------------------------- | -------------- |
+| Start the stack            | `just up`      |
+| Stop (keep the DB volume)  | `just down`    |
+| Stop (wipe the DB volume)  | `just down-clean` |
+| Tail logs                  | `just logs [backend\|frontend]` |
+| Run unit tests             | `just test`    |
+| Typecheck all workspaces   | `just typecheck` |
+| Run E2E checks             | `just e2e`     |
+| Host-mode dev (partial)    | `just dev`     |
 
-- Use Docker to provide a consistent local development environment
-- Use GitHub Actions to build, test, and deploy the application
+## End-to-end checks
 
-### Testing
+The containerized end-to-end suite (`e2e/`) is required to pass before a change
+merges: it builds the images, migrates a fresh database, runs Playwright against
+the full stack, and tears it down. Run it with `just e2e` (or
+`bun run test:e2e`).
 
-- Use Playwright for end-to-end UI testing
+## Contributing
+
+Work is tracked as GitHub issues, triaged into a small set of state labels (see
+[`docs/agents/`](./docs/agents)). See the
+[`docs/adr/`](./docs/adr) directory for architectural decisions and their
+trade-offs.
