@@ -4,11 +4,11 @@ import { app } from "./index";
 // `type App` (erased at build), so importing the app module never starts a
 // listener inside the Node frontend process.
 //
-// BACKEND_PORT is the validated value from the env plugin's decorator
-// (fail-fast: invalid/missing config throws at app construction, before this
-// line runs). The plugin's decorator is named `env`, which collides with
-// Elysia's built-in instance method, so read it from the decorator store.
-const port = app.decorator.env.BACKEND_PORT;
+// Read the port straight from process.env at boot: this is the app-construction
+// path, where a typed decorator would just be reaching into the env plugin's
+// internals. Route handlers still get the type-safe, validated env via the
+// plugin's decorator (see env.ts); this is the one place we read the raw value.
+const port = Number(process.env.BACKEND_PORT ?? 3000);
 app.listen(port);
 
 console.log(`🦊 backend listening on http://localhost:${port}`);

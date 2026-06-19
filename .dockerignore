@@ -1,0 +1,19 @@
+# Keep the image build context lean. Dockerfiles only COPY named paths, but
+# everything here is still uploaded as context on every build — excluding it
+# avoids sending host node_modules, build output, and reports over the socket.
+**/node_modules
+**/.svelte-kit
+**/build
+.git
+.github
+docs
+e2e/playwright-report
+e2e/test-results
+playwright-report
+test-results
+coverage
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store

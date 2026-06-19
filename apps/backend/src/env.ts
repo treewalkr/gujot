@@ -4,9 +4,10 @@ import { t } from "elysia";
 /**
  * Type-safe, fail-fast backend environment (ADR-0013).
  *
- * Validated against a TypeBox schema when the app starts. The validated
- * object is attached as an Elysia decorator, so it is available as `app.env`
- * at boot (e.g. for the listen port) and as `env` in route handlers.
+ * Validated against a TypeBox schema and attached as an Elysia decorator, so
+ * route handlers read `env` with full types and fail-fast validation. Boot-time
+ * reads (e.g. the listen port in server.ts) read `process.env` directly — this
+ * plugin is for request-scoped, type-safe access, not for the one-off boot path.
  */
 export const envPlugin = createEnv({
   BACKEND_PORT: t.Number({ default: 3000 }),
