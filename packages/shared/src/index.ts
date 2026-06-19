@@ -23,4 +23,9 @@ export class Money {
   static of(amount: number, currency: Currency): Money {
     return new Money(amount, currency);
   }
+
+  /** Sum two same-currency amounts. */
+  add(other: Money): Money {
+    return new Money(this.amount + other.amount, this.currency);
+  }
 }
