@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import type { DB } from "../database/client";
 import { sessions } from "../database/schema";
 import type { Session, SessionStore } from "./session-store";
@@ -12,6 +12,9 @@ export class PostgresSessionStore implements SessionStore {
   constructor(private readonly db: DB) {}
 
   async create(userId: number, ttlSeconds: number): Promise<Session> {
+    // crypto.randomUUID() is the unguessable session token — a v4 UUID carries
+    // 122 bits of entropy, far beyond any feasible online brute force. The id is
+    // also the DB primary key, so uniqueness is enforced on write.
     const id = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
     // The `expires_at` column is mode: "string" (ISO), so persist the ISO form.
@@ -20,15 +23,18 @@ export class PostgresSessionStore implements SessionStore {
   }
 
   async get(id: string): Promise<Session | null> {
-    const [row] = await this.db.select().from(sessions).where(eq(sessions.id, id));
+    // Filter at the DB so an expired (or unknown) session is a single query and
+    // never loads a dead row into JS. `expires_at` is a timestamptz column —
+    // `mode: "string"` only shapes the JS value, not the SQL type — so it
+    // compares directly against `now()`. A stale id can therefore never
+    // authenticate; cleanup of already-expired rows is a separate concern
+    // (TODO: a periodic reaper) rather than a per-read delete round-trip.
+    const [row] = await this.db
+      .select()
+      .from(sessions)
+      .where(and(eq(sessions.id, id), gt(sessions.expiresAt, sql`now()`)));
     if (!row) return null;
-    // `expires_at` is stored as an ISO string (mode: "string" in the schema).
     const expiresAt = new Date(row.expiresAt);
-    if (expiresAt.getTime() <= Date.now()) {
-      // Reap expired sessions on read so a stale id can never authenticate.
-      await this.db.delete(sessions).where(eq(sessions.id, id));
-      return null;
-    }
     return { id: row.id, userId: row.userId, expiresAt };
   }
 

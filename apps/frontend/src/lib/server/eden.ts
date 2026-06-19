@@ -1,5 +1,6 @@
 import { treaty } from "@elysiajs/eden";
 import type { App } from "@gujot/backend";
+import { SESSION_COOKIE } from "@gujot/shared";
 import { env } from "$env/dynamic/private";
 import type { Cookies } from "@sveltejs/kit";
 
@@ -11,8 +12,10 @@ import type { Cookies } from "@sveltejs/kit";
  */
 export const eden = treaty<App>(env.BACKEND_URL ?? "http://localhost:3000");
 
-// Must match the backend's SESSION_COOKIE (apps/backend/src/auth/session-cookie.ts).
-export const SESSION_COOKIE = "session";
+// Re-exported so route modules import one name; the value itself lives in
+// @gujot/shared so the backend and frontend can never disagree on the cookie
+// name (ADR-0007).
+export { SESSION_COOKIE };
 
 /**
  * Forward the browser's session cookie on a server-side Eden call so the

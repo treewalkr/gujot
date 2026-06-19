@@ -10,6 +10,9 @@ export class InMemorySessionStore implements SessionStore {
 
   async create(userId: number, ttlSeconds: number): Promise<Session> {
     const session: Session = {
+      // crypto.randomUUID() is the unguessable session token — a v4 UUID carries
+      // 122 bits of entropy, far beyond any feasible online brute force. The id
+      // is also the DB primary key, so uniqueness is enforced on write.
       id: crypto.randomUUID(),
       userId,
       // Date arithmetic is fine here — this is runtime/test code, not a
