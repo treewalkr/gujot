@@ -1,3 +1,4 @@
+import { Elysia, status } from "elysia";
 import { eq } from "drizzle-orm";
 import { getDb } from "../database/client";
 import { users, type User } from "../database/schema";
@@ -14,23 +15,28 @@ export function getSessionStore(): SessionStore {
   return (store ??= new PostgresSessionStore(getDb()));
 }
 
-/** A 401 response for unauthenticated requests to a protected route. */
-export function unauthorizedResponse(): Response {
-  return new Response(JSON.stringify({ error: "unauthorized" }), {
-    status: 401,
-    headers: { "content-type": "application/json" },
-  });
+async function findUserById(id: number): Promise<User | null> {
+  const [row] = await getDb().select().from(users).where(eq(users.id, id));
+  return row ?? null;
 }
 
-// Resolve the authenticated user for an incoming request, or null when there is
-// no session cookie, the session is unknown/expired, or the user was deleted.
-// Returning null (rather than throwing) lets each protected route decide how to
-// reject — keeping this free of framework coupling and trivially testable.
-export async function authenticate(request: Request): Promise<User | null> {
-  const sid = readSessionId(request.headers);
-  if (!sid) return null;
-  const session = await getSessionStore().get(sid);
-  if (!session) return null;
-  const [user] = await getDb().select().from(users).where(eq(users.id, session.userId));
-  return user ?? null;
-}
+// The auth plugin (ADR-0007). `isAuth` is a route-level macro: apply
+// `{ isAuth: true }` to a route and, before its handler runs, the session cookie
+// is resolved to the current user — rejecting with 401 when there is no valid
+// session, and otherwise adding a non-null `currentUser` to the handler's
+// context. Mounted via `.use(auth)` on any protected route group; public routes
+// and the infra-free unit tests never touch the DB through this path.
+export const auth = new Elysia({ name: "auth" }).macro({
+  isAuth(enabled: boolean) {
+    if (!enabled) return {};
+    return {
+      async resolve({ request }: { request: Request }) {
+        const sid = readSessionId(request.headers);
+        const session = sid ? await getSessionStore().get(sid) : null;
+        const currentUser = session ? await findUserById(session.userId) : null;
+        if (!currentUser) return status(401, { error: "unauthorized" });
+        return { currentUser };
+      },
+    };
+  },
+});

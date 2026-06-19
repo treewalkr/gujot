@@ -5,7 +5,7 @@ import { users } from "../database/schema";
 import { userSchema } from "../database/model";
 import { envPlugin } from "../env";
 import { hashPassword, verifyPassword } from "../auth/password";
-import { authenticate, getSessionStore } from "../auth/plugin";
+import { auth, getSessionStore } from "../auth/plugin";
 import { clearSessionCookie, readSessionId, setSessionCookie } from "../auth/session-cookie";
 
 // Register/login share the same credential body. Password minimum is 8 (a low
@@ -96,20 +96,20 @@ export const authRoutes = new Elysia({ prefix: "/auth", name: "Auth", tags: ["au
     },
   );
 
-// Protected: returns the caller's own user data via an Eden-typed call. Any
-// request without a valid session is rejected with 401 (AC).
-export const meRoutes = new Elysia({ name: "Me", tags: ["auth"] }).get(
-  "/me",
-  async ({ request }) => {
-    const user = await authenticate(request);
-    if (!user) return status(401, { error: "unauthorized" });
-    return { id: user.id, email: user.email };
-  },
-  {
-    response: { 200: userSchema, 401: errorBody },
-    detail: {
-      summary: "Current user",
-      description: "Returns the authenticated user's own data. Requires a valid session.",
+// Protected: returns the caller's own user data via an Eden-typed call. The
+// `isAuth` macro resolves the session → `currentUser` (rejecting with 401 when
+// there is none) before this handler runs.
+export const meRoutes = new Elysia({ name: "Me", tags: ["auth"] })
+  .use(auth)
+  .get(
+    "/me",
+    ({ currentUser }) => ({ id: currentUser.id, email: currentUser.email }),
+    {
+      isAuth: true,
+      response: { 200: userSchema, 401: errorBody },
+      detail: {
+        summary: "Current user",
+        description: "Returns the authenticated user's own data. Requires a valid session.",
+      },
     },
-  },
-);
+  );
