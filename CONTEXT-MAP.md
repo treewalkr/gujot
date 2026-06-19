@@ -6,8 +6,8 @@ architectural decisions live in `docs/adr/` at the repo root.
 
 ## Contexts
 
-- [Backend](./apps/backend/CONTEXT.md) — the Elysia API: data model, validation, business rules for personal finance _(not yet written — created when domain terms are resolved)_
-- [Frontend](./apps/frontend/CONTEXT.md) — the SvelteKit UI: presentation and client-side state _(not yet written)_
+- [Backend](./apps/backend/CONTEXT.md) — the Elysia API: data model, validation, business rules for personal finance
+- [Frontend](./apps/frontend/CONTEXT.md) — the SvelteKit UI: presentation and client-side state
 
 ## Relationships
 

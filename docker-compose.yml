@@ -1,15 +1,48 @@
 # Mode 2 — fully containerized local dev / E2E gate (ADR-0005).
 # Caddy/TLS are production-only and intentionally absent here; the frontend
 # reaches the backend directly over the compose network.
+#
+# Postgres is a plain local instance here (ADR-0004 fallback). In production the
+# pooled (DATABASE_URL) and direct (DATABASE_URL_DIRECT) connections point at
+# Supabase's pooler (:6543) and session (:5432) ports; locally both target this
+# one instance — the dual-config is env-driven either way.
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gujot
+      POSTGRES_PASSWORD: gujot
+      POSTGRES_DB: gujot
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gujot -d gujot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
   backend:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
     environment:
       BACKEND_PORT: "3000"
+      DATABASE_URL: "postgresql://gujot:gujot@postgres:5432/gujot"
+      DATABASE_URL_DIRECT: "postgresql://gujot:gujot@postgres:5432/gujot"
+      # Plain local Postgres (no pooler): allow concurrent connections so
+      # parallel requests don't serialize. Behind pgbouncer this stays 1.
+      DB_POOL_SIZE: "10"
     expose:
       - "3000"
+    # Published for local dev only so the OpenAPI docs (/openapi) and raw spec
+    # (/openapi/json) are reachable in a browser. ADR-0005: production routing
+    # is same-origin via Caddy, so the backend is never published there.
+    ports:
+      - "${BACKEND_PUBLISH_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "bun", "-e", "fetch('http://localhost:3000/status').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))"]
       interval: 5s
@@ -36,3 +69,6 @@ services:
       timeout: 3s
       retries: 10
       start_period: 3s
+
+volumes:
+  pgdata:

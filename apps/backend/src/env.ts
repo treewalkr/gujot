@@ -1,14 +1,11 @@
 import { env as createEnv } from "@yolk-oss/elysia-env";
 import { t } from "elysia";
 
-/**
- * Type-safe, fail-fast backend environment (ADR-0013).
- *
- * Validated against a TypeBox schema and attached as an Elysia decorator, so
- * route handlers read `env` with full types and fail-fast validation. Boot-time
- * reads (e.g. the listen port in server.ts) read `process.env` directly — this
- * plugin is for request-scoped, type-safe access, not for the one-off boot path.
- */
+// Request-scoped, type-safe, fail-fast backend env (ADR-0009). Declare vars a
+// route handler needs here; handlers read them via the validated decorator.
+// Boot/app-construction reads (listen port in server.ts, DB URLs in database/client)
+// use process.env directly — they run before this decorator exists, and the DB
+// client stays lazy so importing `app` stays side-effect-free for unit tests.
 export const envPlugin = createEnv({
   BACKEND_PORT: t.Number({ default: 3000 }),
 });
