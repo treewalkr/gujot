@@ -12,8 +12,8 @@ system-wide decisions live in [`docs/adr/`](../../docs/adr/).
   `.subtract`, `.equals`, `.format`, `.fromDecimal`). Construct via `Money.of`,
   never `new`. Same-currency arithmetic only; mismatched currencies throw.
 - **Currency** — an ISO 4217 code from the curated set in `@gujot/shared`'s
-  `CURRENCIES` (`USD`, `EUR`, `GBP`). This tuple is the single source for valid
-  codes; the DB `currency` column is a `pgEnum` built from it.
+  `CURRENCIES` (`USD`, `EUR`, `GBP`, `THB`). This tuple is the single source for
+  valid codes; the DB `currency` column is a `pgEnum` built from it.
 - **minor units** — the integer count of the smallest currency unit (e.g. 1500 =
   $15.00). The wire `amount` field and the `entries.amount` column are both minor
   units, matching `Money.amount`.
