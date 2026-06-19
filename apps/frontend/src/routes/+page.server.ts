@@ -7,6 +7,6 @@ import type { PageServerLoad } from "./$types";
 // backend becomes a type error here.
 export const load: PageServerLoad = async () => {
   const { data, error: backendError } = await eden.status.get();
-  if (backendError) throw error(500, "backend /status unreachable");
+  if (backendError || !data) throw error(500, "backend /status unreachable");
   return { backend: data };
 };

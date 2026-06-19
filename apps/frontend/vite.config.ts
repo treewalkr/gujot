@@ -3,8 +3,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [sveltekit()],
-  // Bundle the Eden client into the SSR output so the adapter-node runtime
-  // image needs no node_modules for it (bun may nest workspace deps).
+  // Bundle @elysiajs/eden into the SSR output. Left externalized, the
+  // adapter-node runtime fails to resolve it and the frontend healthcheck
+  // (which SSRs `/` through Eden) goes unhealthy — verified by the e2e gate.
   ssr: {
     noExternal: ["@elysiajs/eden"],
   },
