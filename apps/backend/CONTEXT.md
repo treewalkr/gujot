@@ -13,7 +13,11 @@ system-wide decisions live in [`docs/adr/`](../../docs/adr/).
   never `new`. Same-currency arithmetic only; mismatched currencies throw.
 - **Currency** — an ISO 4217 code from the curated set in `@gujot/shared`'s
   `CURRENCIES` (`USD`, `EUR`, `GBP`, `THB`). This tuple is the single source for
-  valid codes; the DB `currency` column is a `pgEnum` built from it.
+  valid codes; the DB `currency` column is a `pgEnum` built from it. **All
+  supported currencies assume a 2-decimal exponent** — `Money.fromDecimal` /
+  `format` hardcode `*100` / `/100` (correct for the current set; wrong for
+  0-decimal e.g. JPY or 4-decimal e.g. CLF). Adding such a currency requires a
+  per-currency exponent table in `@gujot/shared`.
 - **minor units** — the integer count of the smallest currency unit (e.g. 1500 =
   $15.00). The wire `amount` field and the `entries.amount` column are both minor
   units, matching `Money.amount`.

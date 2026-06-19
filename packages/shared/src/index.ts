@@ -3,6 +3,12 @@
 // Money is stored as integer minor units (cents) to avoid floating-point
 // error. It is a value object: two Money values are equal iff their amount
 // and currency match. Currency is a curated set of ISO 4217 codes.
+//
+// Assumption: every supported currency has a 2-decimal exponent (ISO 4217).
+// fromDecimal/format hardcode *100 / /100, so they are correct for USD, EUR,
+// GBP, THB but WRONG for 0-decimal (JPY) or 4-decimal (CLF) currencies. Adding
+// such a currency means replacing the constant 100 with 10 ** exponent(currency)
+// from an ISO 4217 exponent table — storage and arithmetic are unaffected.
 
 /** ISO 4217 codes this system currently understands. */
 export const CURRENCIES = ["USD", "EUR", "GBP", "THB"] as const;
