@@ -1,0 +1,4 @@
+# Bun test discovery is scoped to apps/ so Playwright specs under e2e/ are
+# never picked up by `bun test` (they run via `bun test:e2e` / Playwright).
+[test]
+root = "apps"
