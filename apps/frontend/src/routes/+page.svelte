@@ -13,6 +13,9 @@
 
 <main>
   <h1>GuJot</h1>
+  <nav>
+    <a href="/account">Account</a>
+  </nav>
   <p>
     Backend service:
     <strong data-testid="backend-service">{data.status.service}</strong>

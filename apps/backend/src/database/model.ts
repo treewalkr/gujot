@@ -12,8 +12,14 @@ import { spreads } from "./utils";
 //
 // @see https://elysiajs.com/recipe/drizzle.html#table-singleton
 export const db = {
-  insert: spreads({ entries: table.entries }, "insert"),
-  select: spreads({ entries: table.entries }, "select"),
+  insert: spreads(
+    { entries: table.entries, users: table.users, sessions: table.sessions },
+    "insert",
+  ),
+  select: spreads(
+    { entries: table.entries, users: table.users, sessions: table.sessions },
+    "select",
+  ),
 } as const;
 
 // Compose the API validation models from the spreads — the Drizzle table stays
@@ -36,7 +42,16 @@ const createEntrySchema = t.Object({
 /** A page of entries. */
 const entryListSchema = t.Array(entrySchema);
 
-export { entrySchema, createEntrySchema, entryListSchema };
+// A user as returned to a client. The public shape is id + email only — the
+// password hash is never serialized over the wire. Composed from the users
+// spread so it stays in lockstep with the table.
+const userSchema = t.Object({
+  id: db.select.users.id,
+  email: db.select.users.email,
+});
+
+export { entrySchema, createEntrySchema, entryListSchema, userSchema };
 
 export type EntryDto = typeof entrySchema.static;
 export type CreateEntryDto = typeof createEntrySchema.static;
+export type UserDto = typeof userSchema.static;

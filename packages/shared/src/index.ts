@@ -71,3 +71,16 @@ function assertSameCurrency(a: Money, b: Money): void {
     );
   }
 }
+
+// ── Protocol constants ─────────────────────────────────────────────────────
+//
+// Cross-stack wire constants shared by the backend and the frontend. They live
+// here — not duplicated per workspace — so the two sides can never drift apart.
+// Both workspaces already depend on @gujot/shared, so this adds no new edge.
+
+/**
+ * Name of the opaque session-id cookie (ADR-0007). The backend sets it; the
+ * frontend forwards it on SSR `/me` calls and proxies the backend's `Set-Cookie`
+ * onto the browser. The cookie carries only the session id — no claim, no data.
+ */
+export const SESSION_COOKIE = "session";

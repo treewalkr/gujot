@@ -24,10 +24,13 @@ try {
   // "healthy" means the whole frontend→backend→postgres chain answers 200.
   run("docker compose up -d --wait");
 
-  // Create an entry and prove it renders.
-  run("bunx playwright test --config=e2e/playwright.config.ts e2e/skeleton.spec.ts e2e/ledger.spec.ts", {
-    FRONTEND_URL: frontendUrl,
-  });
+  // Create an entry and prove it renders, then exercise the auth model.
+  run(
+    "bunx playwright test --config=e2e/playwright.config.ts e2e/skeleton.spec.ts e2e/ledger.spec.ts e2e/auth.spec.ts",
+    {
+      FRONTEND_URL: frontendUrl,
+    },
+  );
 
   // Survives-restart: kill the backend process and wait for it to come back
   // healthy, then confirm the row written above is still served from Postgres.

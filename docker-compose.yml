@@ -33,6 +33,10 @@ services:
       # Plain local Postgres (no pooler): allow concurrent connections so
       # parallel requests don't serialize. Behind pgbouncer this stays 1.
       DB_POOL_SIZE: "10"
+      # No TLS in the local stack (Caddy is production-only), so the session
+      # cookie must NOT be Secure or the browser won't send it over HTTP and the
+      # E2E auth flow can't work. Production sets this to "true" (ADR-0007).
+      COOKIE_SECURE: "false"
     expose:
       - "3000"
     # Published for local dev only so the OpenAPI docs (/openapi) and raw spec
