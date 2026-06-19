@@ -24,8 +24,17 @@ export class Money {
     return new Money(amount, currency);
   }
 
-  /** Sum two same-currency amounts. */
+  /** Sum two same-currency amounts; throws if currencies differ. */
   add(other: Money): Money {
+    assertSameCurrency(this, other);
     return new Money(this.amount + other.amount, this.currency);
+  }
+}
+
+function assertSameCurrency(a: Money, b: Money): void {
+  if (a.currency !== b.currency) {
+    throw new Error(
+      `currency mismatch: ${a.currency} vs ${b.currency}`,
+    );
   }
 }
