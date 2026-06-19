@@ -20,11 +20,20 @@ export const load: PageServerLoad = async () => {
 export const actions: Actions = {
   default: async ({ request }) => {
     const form = await request.formData();
-    const amount = Number(form.get("amount"));
+    const amountRaw = String(form.get("amount") ?? "").trim();
     const currency = String(form.get("currency"));
     const label = String(form.get("label")).trim();
+    const amount = Number(amountRaw);
 
-    if (!Number.isFinite(amount) || !(CURRENCIES as readonly string[]).includes(currency) || !label) {
+    // Reject the empty string explicitly: Number("") === 0 is finite, so without
+    // this a crafted POST with no amount would create a $0 entry. The HTML
+    // `required` covers the browser path; this guards the server path.
+    if (
+      amountRaw === "" ||
+      !Number.isFinite(amount) ||
+      !(CURRENCIES as readonly string[]).includes(currency) ||
+      !label
+    ) {
       throw error(400, "invalid entry");
     }
 
