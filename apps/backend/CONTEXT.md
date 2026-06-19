@@ -40,6 +40,11 @@ system-wide decisions live in [`docs/adr/`](../../docs/adr/).
   frontend imports it (compile-time only) to build the Eden treaty client
   ([ADR-0001](../../docs/adr/0001-elysia-eden-typed-client.md)). Changing a route
   signature is a frontend type error.
+- **OpenAPI is auto-generated** from the registered routes and named models
+  ([ADR-0008](../../docs/adr/0008-elysia-drizzle-single-source-models.md)) via
+  `@elysiajs/openapi` (`src/openapi.ts`): docs UI at `/openapi`, raw spec at
+  `/openapi/json`. Tag routes per controller with `new Elysia({ tags })` and add
+  `detail` summaries; the Drizzle-derived models surface as reusable schemas.
 - **DB connections are lazy and dual** (ADR-0004). `getDb()` opens the pooled
   runtime connection on first use (so importing `app` is side-effect-free and
   infra-free unit tests need no DB); migrations use the direct connection in

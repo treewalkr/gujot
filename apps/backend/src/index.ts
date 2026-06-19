@@ -1,5 +1,6 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { envPlugin } from "./env";
+import { openapiPlugin } from "./openapi";
 import { entriesRoutes } from "./routes/entries";
 
 /**
@@ -9,11 +10,23 @@ import { entriesRoutes } from "./routes/entries";
  */
 export const app = new Elysia()
   .use(envPlugin)
+  .use(openapiPlugin)
   .use(entriesRoutes)
-  .get("/status", () => ({
-    service: "gujot-backend",
-    status: "ok",
-  }));
+  .get(
+    "/status",
+    () => ({ service: "gujot-backend", status: "ok" }),
+    {
+      response: t.Object({
+        service: t.String(),
+        status: t.String(),
+      }),
+      detail: {
+        summary: "Service status",
+        description: "Liveness probe — reports the backend is up.",
+        tags: ["health"],
+      },
+    },
+  );
 
 /** Live route type, consumed by Eden on the frontend. */
 export type App = typeof app;

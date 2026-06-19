@@ -8,7 +8,7 @@ import { createEntrySchema, entryListSchema, entrySchema } from "../db/models";
 // are derived from the Drizzle schema in src/db/models.ts and registered by name
 // so they surface in OpenAPI and tighten Eden's inferred contract; body and
 // response schemas reference those names.
-export const entriesRoutes = new Elysia({ prefix: "/entries", name: "Entries" })
+export const entriesRoutes = new Elysia({ prefix: "/entries", name: "Entries", tags: ["entries"] })
   .model({
     entry: entrySchema,
     "entry.create": createEntrySchema,
@@ -19,7 +19,13 @@ export const entriesRoutes = new Elysia({ prefix: "/entries", name: "Entries" })
     async () => {
       return getDb().select().from(entries).orderBy(desc(entries.id));
     },
-    { response: "entry.list" },
+    {
+      response: "entry.list",
+      detail: {
+        summary: "List entries",
+        description: "Returns every ledger entry, newest first.",
+      },
+    },
   )
   .post(
     "",
@@ -30,5 +36,9 @@ export const entriesRoutes = new Elysia({ prefix: "/entries", name: "Entries" })
     {
       body: "entry.create",
       response: "entry",
+      detail: {
+        summary: "Create an entry",
+        description: "Persists a Money value as a ledger entry.",
+      },
     },
   );
