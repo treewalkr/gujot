@@ -28,3 +28,9 @@ test("equals is true only when amount and currency both match", () => {
   expect(Money.of(1500, "USD").equals(Money.of(1500, "EUR"))).toBe(false);
   expect(Money.of(1500, "USD").equals(Money.of(1499, "USD"))).toBe(false);
 });
+
+test("format renders minor units as a currency string", () => {
+  expect(Money.of(1500, "USD").format()).toBe("$15.00");
+  expect(Money.of(0, "USD").format()).toBe("$0.00");
+  expect(Money.of(-1500, "USD").format()).toBe("-$15.00");
+});

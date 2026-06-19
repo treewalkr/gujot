@@ -40,6 +40,14 @@ export class Money {
   equals(other: Money): boolean {
     return this.amount === other.amount && this.currency === other.currency;
   }
+
+  /** Render as a localized currency string (minor units → major units). */
+  format(): string {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: this.currency,
+    }).format(this.amount / 100);
+  }
 }
 
 function assertSameCurrency(a: Money, b: Money): void {
