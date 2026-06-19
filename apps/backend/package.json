@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@yolk-oss/elysia-env": "^3.0.1",
     "elysia": "^1.2.0"
   },
   "devDependencies": {

@@ -14,6 +14,7 @@
       "name": "@gujot/backend",
       "version": "0.0.0",
       "dependencies": {
+        "@yolk-oss/elysia-env": "^3.0.1",
         "elysia": "^1.2.0",
       },
       "devDependencies": {
@@ -212,6 +213,8 @@
     "@types/resolve": ["@types/resolve@1.20.2", "", {}, "sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q=="],
 
     "@types/trusted-types": ["@types/trusted-types@2.0.7", "", {}, "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="],
+
+    "@yolk-oss/elysia-env": ["@yolk-oss/elysia-env@3.0.1", "", { "peerDependencies": { "elysia": ">= 1.4.26" } }, "sha512-fEgLyt4iyuZkcCumZD/0CQGtD6DSencbnMceGjf9FbQoagbARMogLAwkgAdFoTE9w4ywz273tf6VFTWx7HDalA=="],
 
     "acorn": ["acorn@8.17.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-xRQbDb9BnwDafYNn6Vwl839DYVjqXYb1XVGtWAZ1kcDc6iwAL4hg3B1dZlRiuENFeO2H53gFG3in621AdERVAg=="],
 
