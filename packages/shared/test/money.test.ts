@@ -48,3 +48,11 @@ test("large minor-unit amounts stay precise within safe integers", () => {
   const big = 90071992547409; // just under Number.MAX_SAFE_INTEGER / 100
   expect(Money.of(big, "USD").add(Money.of(big, "USD"))).toEqual(Money.of(big * 2, "USD"));
 });
+
+test("fromDecimal converts major-unit decimals to minor units", () => {
+  expect(Money.fromDecimal(15, "USD")).toEqual(Money.of(1500, "USD"));
+  expect(Money.fromDecimal(15.5, "USD")).toEqual(Money.of(1550, "USD"));
+  expect(Money.fromDecimal(15.05, "USD")).toEqual(Money.of(1505, "USD"));
+  expect(Money.fromDecimal(0, "USD")).toEqual(Money.of(0, "USD"));
+  expect(Money.fromDecimal(-15, "USD")).toEqual(Money.of(-1500, "USD"));
+});

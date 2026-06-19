@@ -24,6 +24,11 @@ export class Money {
     return new Money(amount, currency);
   }
 
+  /** Create from a major-unit decimal (e.g. 15.05 dollars → 1505 minor units). */
+  static fromDecimal(major: number, currency: Currency): Money {
+    return new Money(Math.round(major * 100), currency);
+  }
+
   /** Sum two same-currency amounts; throws if currencies differ. */
   add(other: Money): Money {
     assertSameCurrency(this, other);
