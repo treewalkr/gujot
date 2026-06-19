@@ -34,3 +34,17 @@ test("format renders minor units as a currency string", () => {
   expect(Money.of(0, "USD").format()).toBe("$0.00");
   expect(Money.of(-1500, "USD").format()).toBe("-$15.00");
 });
+
+test("adding zero is the identity", () => {
+  expect(Money.of(1500, "USD").add(Money.of(0, "USD"))).toEqual(Money.of(1500, "USD"));
+});
+
+test("arithmetic handles negative amounts (debts)", () => {
+  expect(Money.of(1500, "USD").add(Money.of(-4000, "USD"))).toEqual(Money.of(-2500, "USD"));
+  expect(Money.of(-2500, "USD").subtract(Money.of(-1000, "USD"))).toEqual(Money.of(-1500, "USD"));
+});
+
+test("large minor-unit amounts stay precise within safe integers", () => {
+  const big = 90071992547409; // just under Number.MAX_SAFE_INTEGER / 100
+  expect(Money.of(big, "USD").add(Money.of(big, "USD"))).toEqual(Money.of(big * 2, "USD"));
+});
