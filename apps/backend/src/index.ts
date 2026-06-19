@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { envPlugin } from "./env";
+import { entriesRoutes } from "./routes/entries";
 
 /**
  * The instantiated Elysia app. The frontend imports `type App` from here to
@@ -8,6 +9,7 @@ import { envPlugin } from "./env";
  */
 export const app = new Elysia()
   .use(envPlugin)
+  .use(entriesRoutes)
   .get("/status", () => ({
     service: "gujot-backend",
     status: "ok",
