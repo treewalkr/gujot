@@ -44,3 +44,7 @@ system-wide decisions live in [`docs/adr/`](../../docs/adr/).
   runtime connection on first use (so importing `app` is side-effect-free and
   infra-free unit tests need no DB); migrations use the direct connection in
   `drizzle.config.ts`. Read both from `process.env` at boot.
+- **Env access has two modes** (ADR-0009). Request-scoped vars go through the
+  `elysia-env` plugin in `src/env.ts` (validated, typed decorator); boot/construction
+  reads (listen port, DB URLs) use `process.env` directly. Keep construction reads
+  lazy so importing `app` stays side-effect-free.
