@@ -30,6 +30,9 @@ services:
       BACKEND_PORT: "3000"
       DATABASE_URL: "postgresql://gujot:gujot@postgres:5432/gujot"
       DATABASE_URL_DIRECT: "postgresql://gujot:gujot@postgres:5432/gujot"
+      # Plain local Postgres (no pooler): allow concurrent connections so
+      # parallel requests don't serialize. Behind pgbouncer this stays 1.
+      DB_POOL_SIZE: "10"
     expose:
       - "3000"
     # Published for local dev only so the OpenAPI docs (/openapi) and raw spec

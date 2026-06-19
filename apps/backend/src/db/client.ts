@@ -16,11 +16,16 @@ export function getDb(): DB {
   // Pooled connection (Supabase pooler, transaction mode, port 6543,
   // pgbouncer=true) — suitable for the app runtime but not for Drizzle Kit
   // migrations, which use the direct/session connection in drizzle.config.ts.
-  // connection_limit=1 is the documented pgbouncer recommendation; a no-op
-  // against a plain local Postgres (ADR-0004 fallback).
+  //
+  // Pool size is env-driven: behind a transaction-mode pooler (pgbouncer) the
+  // documented recommendation is a single server-side connection
+  // (connection_limit=1, so DB_POOL_SIZE defaults to 1); against a plain local
+  // Postgres (ADR-0004 fallback) raising it lets concurrent requests run in
+  // parallel instead of serializing through one connection.
   const pooledUrl = process.env.DATABASE_URL;
   if (!pooledUrl) throw new Error("DATABASE_URL is required (pooled, port 6543)");
+  const max = Number(process.env.DB_POOL_SIZE ?? 1);
 
-  instance = drizzle(postgres(pooledUrl, { max: 1 }), { schema });
+  instance = drizzle(postgres(pooledUrl, { max }), { schema });
   return instance;
 }
