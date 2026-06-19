@@ -14,3 +14,11 @@ test("add returns the sum of two same-currency amounts", () => {
 test("add throws when the currencies differ", () => {
   expect(() => Money.of(1500, "USD").add(Money.of(2500, "EUR"))).toThrow();
 });
+
+test("subtract returns the difference of two same-currency amounts", () => {
+  expect(Money.of(4000, "USD").subtract(Money.of(1500, "USD"))).toEqual(Money.of(2500, "USD"));
+});
+
+test("subtract throws when the currencies differ", () => {
+  expect(() => Money.of(4000, "USD").subtract(Money.of(1500, "EUR"))).toThrow();
+});

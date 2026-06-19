@@ -29,6 +29,12 @@ export class Money {
     assertSameCurrency(this, other);
     return new Money(this.amount + other.amount, this.currency);
   }
+
+  /** Subtract a same-currency amount; throws if currencies differ. */
+  subtract(other: Money): Money {
+    assertSameCurrency(this, other);
+    return new Money(this.amount - other.amount, this.currency);
+  }
 }
 
 function assertSameCurrency(a: Money, b: Money): void {
