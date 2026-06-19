@@ -57,6 +57,14 @@ test("fromDecimal converts major-unit decimals to minor units", () => {
   expect(Money.fromDecimal(-15, "USD")).toEqual(Money.of(-1500, "USD"));
 });
 
+test("fromDecimal rounds half-cents correctly past float edges", () => {
+  // 1.005 * 100 lands at 100.49999… without the EPSILON correction and would
+  // wrongly round to 100; it should round half-up to 101.
+  expect(Money.fromDecimal(1.005, "USD")).toEqual(Money.of(101, "USD"));
+  expect(Money.fromDecimal(2.675, "USD")).toEqual(Money.of(268, "USD"));
+  expect(Money.fromDecimal(10.005, "USD")).toEqual(Money.of(1001, "USD"));
+});
+
 test("supports THB as a currency", () => {
   expect(CURRENCIES).toContain("THB");
   // Intl formats THB as "THB 15.00" (non-breaking space); accept any

@@ -32,7 +32,10 @@ export class Money {
 
   /** Create from a major-unit decimal (e.g. 15.05 dollars → 1505 minor units). */
   static fromDecimal(major: number, currency: Currency): Money {
-    return new Money(Math.round(major * 100), currency);
+    // EPSILON before *100 corrects the float edge where e.g. 1.005 * 100 lands
+    // at 100.49999… and would round down to 100 instead of 101. Major units are
+    // assumed to carry at most 2 decimals (see the currency-exponent note above).
+    return new Money(Math.round((major + Number.EPSILON) * 100), currency);
   }
 
   /** Sum two same-currency amounts; throws if currencies differ. */
